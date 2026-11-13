@@ -20,12 +20,12 @@ Reading the misses showed one more pattern that the totals hide: a fee lowered f
   failed after a harmless change.
 
 ## Step 2. Split: rules vs. LLM
-We use no code rules for the verdict; `rules()` returns nothing.
+I use no code rules for the verdict; `rules()` returns nothing.
 
 - **Why no rule:** whether a different number, a missing condition or a stronger word is a failure depends on the
   criterion. A fixed rule would encode one criterion and break on the next.
-- **What we tried:** a code check that looks up every number of the reply in the policy text and hands the result to
-  the model as evidence. It was part of a two-call pipeline that scored 0.631, below the baseline, so we dropped it.
+- **What I tried:** a code check that looks up every number of the reply in the policy text and hands the result to
+  the model as evidence. It was part of a two-call pipeline that scored 0.631, below the baseline, so I dropped it.
 - **What code does do:** it picks the examples (Step 3), reads the final verdict line, and enforces the 3-call limit.
 
 - Check: there is no rule, so no rule can fail a harmless edit.
@@ -80,21 +80,21 @@ Full dev set, 226 cases, two runs with identical verdicts (consistency 1.000).
 | padding_removal (keep) | 1.000 | 1.000 |
 
 The full-dev number is flattering, because the prompt's examples come from the same nine source replies that are
-scored. So we also split dev by source reply (`make_split.py`): examples from three sources, scoring on the others.
+scored. So I also split dev by source reply (`make_split.py`): examples from three sources, scoring on the others.
 
 | Held-out set | Baseline | Ours |
 |---|---|---|
 | Split A: 149 cases, 6 unseen sources | 0.797 | 0.913 |
 | Split B: 43 cases, 3 other unseen sources | 0.294 | 0.679 |
 
-These two were measured at temperature 0.3, before the switch to 0. Split B is our honest estimate for new topics:
+These two were measured at temperature 0.3, before the switch to 0. Split B is my honest estimate for new topics:
 the judge still fails about a quarter of good replies there.
 
-- Check: the gain holds on source replies we did not tune on, on both splits. We could not test unseen edit types.
+- Check: the gain holds on source replies I did not tune on, on both splits. I could not test unseen edit types.
 
 ## Surprise criterion
-New criterion: "does the reply state the policy correctly?" (errors count in both directions). We changed nothing
-in the code: only `--criterion` and `--dev` pointed at the new files, as in the task's own command. We also ran it
+New criterion: "does the reply state the policy correctly?" (errors count in both directions). I changed nothing
+in the code: only `--criterion` and `--dev` pointed at the new files, as in the task's own command. I also ran it
 once with no `--dev` at all, so that the prompt held no example of the new criterion.
 
 | | combined | catch | keep |
