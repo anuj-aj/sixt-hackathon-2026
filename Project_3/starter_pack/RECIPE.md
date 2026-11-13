@@ -56,8 +56,9 @@ Full dev set, 226 cases. Two runs gave identical verdicts (consistency 1.000).
 | it | 0.739 | 0.934 |
 
 The full-dev score is flattering, because the prompt's examples come from the same source replies that are scored.
-Held out by source reply (`make_split.py`), ours scores 0.913 on one split (baseline 0.797) and 0.679 on another
-(baseline 0.294).
+Held out by source reply (`python3 make_split.py dev_pairs.jsonl --n-example-sources 3 --seed 0`; full commands
+in `SUBMISSION.md`), ours scores 0.913 on one split (baseline 0.797) and 0.679 on another
+(baseline 0.294). Both were measured at temperature 0.3, before the switch to 0.
 
 - Check: the gain holds on source replies I did not tune on. Unseen edit types could not be tested.
 
@@ -73,8 +74,8 @@ Without any examples in the prompt, the same code scores 0.851.
 
 ## What did not work
 - **Checklist-style auditing.** Four designs that list every difference from the policy, or audit against a compiled
-  rubric, scored 0.90–0.94 on one held-out split and 0.12–0.33 on the other, below the baseline. They fail honest
-  paraphrases on topics they have not seen.
+  rubric, scored 0.79–0.94 on one held-out split but only 0.12–0.33 on the other, where the baseline scores 0.294.
+  They fail honest paraphrases on topics they have not seen.
 - **Voting at temperature 0.3.** It did not stabilise verdicts.
 - **A code number check** passed to the model as evidence: part of a pipeline that scored 0.631, below the baseline.
 - **Dropped conditions are still the weakest catch** (0.800, and 0.600 on the surprise criterion).

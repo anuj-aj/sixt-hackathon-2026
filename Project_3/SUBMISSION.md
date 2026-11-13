@@ -42,14 +42,16 @@ Settings: temperature 0, up to 10 examples, up to 3 calls per reply.
 | Criterion 2, no examples in the prompt | 0.632 | 0.851 |
 
 The full-dev and criterion 2 scores are flattering, because the prompt's examples come from the same source replies
-that are scored. The held-out and no-examples rows are the honest estimates.
+that are scored. The held-out and no-examples rows are the honest estimates; the two held-out rows were measured at temperature 0.3,
+before the switch to 0.
 
 Hidden test cases: the result files are in `submission/` (`criterion1_run1.csv`, `criterion1_run2.csv`,
 `criterion2_run1.csv`, `criterion2_run2.csv`).
 
 What did not work, and the limits:
 
-- Four stricter designs scored 0.90–0.94 on split A and 0.12–0.33 on split B, below the starting judge.
+- Four stricter designs scored 0.79–0.94 on split A but only 0.12–0.33 on split B, where the starting judge
+  scores 0.294.
 - Dropped conditions remain the weakest catch: 0.800 on criterion 1, 0.600 on criterion 2.
 - On new topics (split B) the judge still fails about a quarter of good replies.
 - Unseen edit types could not be tested.
@@ -73,6 +75,26 @@ python3 score.py surprise_dev.csv surprise/dev_pairs.jsonl
 ```
 
 For consistency, run a command twice and add `--repeat <second file>` to `score.py`.
+
+The held-out check splits the dev cases by source reply, so the examples in the prompt never share a source reply
+with the cases that are scored:
+
+```bash
+# Split A: examples from 3 source replies, scored on the other 6 (149 cases)
+python3 make_split.py dev_pairs.jsonl --n-example-sources 3 --seed 0
+python3 run_judge.py --judge final_judge.py --pairs split_holdout.jsonl --criterion JUDGE1_CRITERION.md \
+    --policy policy.md --dev split_examples.jsonl --out split_a.csv
+python3 score.py split_a.csv split_holdout.jsonl --baseline baseline_dev_verdicts.csv
+
+# Split B: examples from 3 other source replies, scored on the 3 that split A used for its examples (43 cases)
+python3 run_judge.py --judge final_judge.py --pairs fast_holdout_B.jsonl --criterion JUDGE1_CRITERION.md \
+    --policy policy.md --dev split_examples_B.jsonl --out split_b.csv
+python3 score.py split_b.csv fast_holdout_B.jsonl --baseline baseline_dev_verdicts.csv
+```
+
+`make_split.py` writes `split_examples.jsonl` and `split_holdout.jsonl`. The two split B files are in the repo as
+used. The held-out scores above were measured with `JUDGE_TEMPERATURE=0.3`; at that setting a rerun can differ by a
+few points.
 
 ## Demo
 <`submission/demo.mp4` or `submission/slides.pdf`>
