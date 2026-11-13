@@ -31,7 +31,6 @@ Settings: temperature 0, up to 10 examples, up to 3 calls per reply.
 | | Starting judge | Ours |
 |---|---|---|
 | Criterion 1, full dev set (226 cases) | 0.697 | 0.923 |
-| Criterion 1, kappa | 0.531 | 0.877 |
 | Criterion 1, held out by source reply, split A (149 cases) | 0.797 | 0.913 |
 | Criterion 1, held out by source reply, split B (43 cases) | 0.294 | 0.679 |
 | Criterion 2 (surprise), 73 cases, code unchanged | 0.632 | 0.901 |
