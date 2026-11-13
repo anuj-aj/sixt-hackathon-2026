@@ -11,29 +11,36 @@ I scored the baseline per edit type and per language on the 226 dev cases, then 
 - **Languages:** French (0.603) and German (0.635) are weakest.
 - **Example miss:** a fee lowered from 20 EUR to 8 EUR was judged "less generous" and passed.
 
-- Check before moving on: the three costly failure types are dropped conditions, removed hedges, and good replies
-  failed after a harmless change.
-
 ## Step 2. Split: rules vs. LLM
-No code rule decides a verdict. Whether a different number or a missing condition is a failure depends on the
-criterion, so a fixed rule would encode one criterion and break on the next. Code picks the examples, reads the
-final verdict line and enforces the 3-call limit. The LLM does all the judging.
+- **Code does:** pick the examples from the `--dev` file, read the final `VERDICT:` line, and cap the calls at 3 per
+  reply.
+- **The LLM does:** every pass or fail decision.
+- **Why no code rule decides a verdict:** the same difference can be a failure under one criterion and acceptable
+  under another. A rule fixed in code would fit one criterion and break on the next.
 
 - Check: there is no rule, so no rule can fail a harmless edit.
 
 ## Step 3. Improve the LLM part
-One prompt per reply, changed from the baseline as follows:
+The judge constructs a realistic scenario from the edited reply, compares it against the company policy, and
+evaluates the consequences.
+
+For example, if early pickup is promised without an availability condition, the judge considers what happens when
+no car is available.
+
+Key idea: Identify whether the edit creates an unsupported customer benefit, company obligation, or potential loss,
+then determine whether it violates the criterion.
+
+This is scenario-based reasoning, not an actual simulation.
+
+The prompt also changes the baseline in these ways:
 
 1. **Reason first, verdict last.** A short analysis, then a final `VERDICT:` line.
 2. **Interpret the criterion first.** The model states what counts as a failure under this criterion and what is
    irrelevant, without assuming what the criterion is about.
 3. **Decisive evidence only, pass by default.** Fail only when the evidence establishes a violation. Paraphrase,
    reordering, translation and filler must not change the verdict. This is what stops good replies being failed.
-4. **Spell out what a different quantity means** (who pays or waits, more or less for the customer) before judging
-   it. This targets the lowered-fee miss.
-5. **Contrastive examples chosen by code** from the `--dev` file: one pair per edit type, from different source
+4. **Contrastive examples chosen by code** from the `--dev` file: one pair per edit type, from different source
    replies, at most 10.
-6. **Temperature 0.** At 0.3, 6.4% of verdicts changed between two runs of the same code.
 
 Up to 3 calls per reply: a second call confirms the first, a third only if they disagree.
 
@@ -73,9 +80,6 @@ Nothing changed in the code. Only `--criterion` and `--dev` pointed at the new f
 Without any examples in the prompt, the same code scores 0.851.
 
 ## What did not work
-- **Checklist-style auditing.** Four designs that list every difference from the policy, or audit against a compiled
-  rubric, scored 0.79–0.94 on one held-out split but only 0.12–0.33 on the other, where the baseline scores 0.294.
-  They fail honest paraphrases on topics they have not seen.
-- **Voting at temperature 0.3.** It did not stabilise verdicts.
-- **A code number check** passed to the model as evidence: part of a pipeline that scored 0.631, below the baseline.
+- **Voting at temperature 0.3.** It did not stabilise verdicts: 6.4% changed between two runs of the same code.
+  Temperature 0 fixed it.
 - **Dropped conditions are still the weakest catch** (0.800, and 0.600 on the surprise criterion).
