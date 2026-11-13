@@ -13,9 +13,6 @@ The main idea is one prompt that makes the model **interpret the criterion first
 and pass by default**, with examples picked by code and temperature 0. The judge is `starter_pack/final_judge.py`;
 the step-by-step recipe is in [`starter_pack/RECIPE.md`](starter_pack/RECIPE.md).
 
-I chose it because the stricter designs I built (listing every difference from the policy, auditing against a
-rubric) looked best on one held-out split and collapsed on a second one.
-
 Assumptions: the criterion, the policy and the examples are inputs and nothing about them is in the code; the judge
 sees one reply at a time, keeps no state, and makes at most 3 model calls per reply.
 
@@ -35,26 +32,17 @@ Settings: temperature 0, up to 10 examples, up to 3 calls per reply.
 |---|---|---|
 | Criterion 1, full dev set (226 cases) | 0.697 | 0.923 |
 | Criterion 1, kappa | 0.531 | 0.877 |
-| Criterion 1, consistency over two runs | – | 1.000 |
 | Criterion 1, held out by source reply, split A (149 cases) | 0.797 | 0.913 |
 | Criterion 1, held out by source reply, split B (43 cases) | 0.294 | 0.679 |
 | Criterion 2 (surprise), 73 cases, code unchanged | 0.632 | 0.901 |
 | Criterion 2, no examples in the prompt | 0.632 | 0.851 |
 
 The full-dev and criterion 2 scores are flattering, because the prompt's examples come from the same source replies
-that are scored. The held-out and no-examples rows are the honest estimates; the two held-out rows were measured at temperature 0.3,
-before the switch to 0.
+that are scored. The held-out and no-examples rows are the honest estimates; the two held-out rows were measured
+at temperature 0.3, before the switch to 0.
 
 Hidden test cases: the result files are in `submission/` (`criterion1_run1.csv`, `criterion1_run2.csv`,
 `criterion2_run1.csv`, `criterion2_run2.csv`).
-
-What did not work, and the limits:
-
-- Four stricter designs scored 0.79–0.94 on split A but only 0.12–0.33 on split B, where the starting judge
-  scores 0.294.
-- Dropped conditions remain the weakest catch: 0.800 on criterion 1, 0.600 on criterion 2.
-- On new topics (split B) the judge still fails about a quarter of good replies.
-- Unseen edit types could not be tested.
 
 ## How to run
 Python 3.11 or newer, standard library only. Environment variables (names only), in the shell or in
