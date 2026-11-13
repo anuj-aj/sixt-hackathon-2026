@@ -1,7 +1,7 @@
-# Submission: Project 3, Judge the Judge — <team name>
+# Submission: Project 3, Judge the Judge — OBSIDIAN
 
 ## Authors
-**Team name:** <team name>
+**Team name:** OBSIDIAN
 
 **Project:** Project 3: Judge the Judge — a recipe for building LLM judges you can trust
 
