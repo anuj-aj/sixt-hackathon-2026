@@ -9,9 +9,7 @@
 The starting judge misses small edits that change a reply's meaning (it catches 7% of dropped conditions) and fails
 14% of good replies. The task is a recipe that fixes both and still works on a criterion it has never seen.
 
-The main idea is one prompt that makes the model **interpret the criterion first, look only for decisive evidence,
-and pass by default**, with examples picked by code and temperature 0. The judge is `starter_pack/final_judge.py`;
-the step-by-step recipe is in [`starter_pack/RECIPE.md`](starter_pack/RECIPE.md).
+The approach combines prompt engineering and LLM reasoning to build a criterion-adaptive judge for SIXT customer-service replies. We use few-shot learning with representative PASS and FAIL examples to establish decision boundaries. The LLM then interprets the supplied criterion and company policy, identifies changes in customer-facing claims, and uses scenario-based reasoning to evaluate their potential real-world consequences for SIXT rather than simply comparing wording. For example, an unconditional early-pickup promise could create an expectation that SIXT cannot fulfill if no vehicle is available. The judge evaluates whether this unsupported commitment violates the active criterion and returns a PASS or FAIL decision. This approach helps SIXT detect over-promising before it reaches customers, while allowing the same reasoning pipeline to adapt to different evaluation criteria without code changes.
 
 Assumptions: the criterion, the policy and the examples are inputs and nothing about them is in the code; the judge
 sees one reply at a time, keeps no state, and makes at most 3 model calls per reply.
